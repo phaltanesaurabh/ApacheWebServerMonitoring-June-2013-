@@ -1,0 +1,61 @@
+$username = "root"		database is created with admin "root"
+$password = "p"			password is "p"
+$hostname = "localhost" 	hostname is "localhost"
+ 
+							//accesslog table schema with all the expected fields
+CREATE TABLE IF NOT EXISTS `accessnew` (
+  `remoteip` varchar(30) NOT NULL,
+  `date` date NOT NULL,
+  `time` time NOT NULL,
+  `time_stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `request` varchar(30) NOT NULL,
+  `req_protocol` varchar(30) NOT NULL,
+  `req_method` varchar(30) NOT NULL,
+  `status` int(30) NOT NULL,
+  `req_time_milsec` varchar(30) NOT NULL,
+  `bytes_sent` bigint(30) NOT NULL,
+  `referer` varchar(30) NOT NULL,
+  `user_agent` varchar(30) NOT NULL,
+  `virtual_host` varchar(30) NOT NULL,
+  `serveid` varchar(30) NOT NULL,
+  `warn_level` varchar(15) DEFAULT NULL,
+  `error` varchar(50) DEFAULT NULL
+)
+
+
+//modstatus table schema with all the expected fields
+
+CREATE TABLE IF NOT EXISTS `modstatus` (
+  `Total Accesses` bigint(20) NOT NULL,
+  `Total kBytes:` bigint(20) NOT NULL,
+  `CPUload` varchar(50) NOT NULL,
+  `Uptime` varchar(50) NOT NULL,
+  `Reqpersec` varchar(50) NOT NULL,
+  `BytesPerSec` varchar(50) NOT NULL,
+  `BytesPerRec` varchar(50) NOT NULL,
+  `Busyworker` int(11) NOT NULL,
+  `Idleworker` int(11) NOT NULL,
+  `time_stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `sendngreply` int(11) NOT NULL,
+  `waitfrconn` int(11) NOT NULL,
+  `gracefullyfinishng` int(11) NOT NULL,
+  `startingup` int(11) NOT NULL,
+  `ReadingReq` int(11) NOT NULL,
+  `Keepalive` int(11) NOT NULL,
+  `DNSLookup` int(11) NOT NULL,
+  `Closingconn` int(11) NOT NULL,
+  `Logging` int(11) NOT NULL,
+  `idlecleanup` int(11) NOT NULL,
+  `virtual_host` varchar(10) NOT NULL,
+  `serverid` varchar(10) NOT NULL
+)
+
+
+
+//uptime table schema used along with modstatus to calculate the downtime of the server
+
+CREATE TABLE IF NOT EXISTS `uptime` (
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` int(11) NOT NULL,
+  `downtime` int(11) NOT NULL
+)

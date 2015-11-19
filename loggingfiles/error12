@@ -1,0 +1,44 @@
+#!/usr/bin/php
+<?php
+ob_implicit_flush (true); // Use unbuffered output
+include 'd_connect.php';		
+
+
+$stdin = fopen ('php://stdin', 'r');
+if ($stdin)
+ echo "file opening";
+
+while(($line = fgets ($stdin)))
+{
+	$i=0;
+	$j=0;
+	$i=preg_match("/\[(\S+) (\S+) ([0-9]+) (\S+) ([0-9]+)\] \[(\S+)\] \[(\S+) (\S+)\] ([\S\s]+)$/",$line,$attribute2);
+	
+	if($i==0)
+		$j=preg_match("/\[(\S+) (\S+) ([0-9]+) (\S+) ([0-9]+)\] \[(\S+)\] (\S+) \((\S+)\) ([\S\s]+)$/",$line,$attribute2);
+
+	$attribute[4]=$attribute2[3]."/".$attribute2[2]."/".$attribute2[5];      //attribute[4] is input in dataconversion
+
+	include 'dateconversion.php';						//convert to sqlformat
+
+	$warn_level     = mysql_real_escape_string($attribute2[6]); 		//server : [error]
+	$error     = mysql_real_escape_string($attribute2[9]); 			
+
+	$timestamp=$attribute1[3]." ".$attribute2[4];				//mysql timestamp format
+
+	$time_stamp=mysql_real_escape_string($timestamp);
+
+	if($i==1||$j==1)
+	{
+	        
+	   	      $result=mysql_query("select * from `WSM`.`accessnew` where time_stamp='$timestamp';");	//check the error enter in accesslog
+			$num=mysql_numrows($result);        
+		 
+		        $i=mysql_query("UPDATE `WSM`.`accessnew` SET `warn_level`='$warn_level', `error`='$error' WHERE time_stamp='$timestamp';");	//update the entry in database accesslog table
+        
+	        
+	}
+}
+   mysql_close($dbhandle);
+   fclose($stdin);
+?>

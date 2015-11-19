@@ -1,0 +1,60 @@
+#!/usr/bin/php
+<?php
+//script for parsing and entering into the database the accesslog data
+
+function parseUI($attribute1)
+	{
+	 preg_match("/^\"(\S+) (\S+) (\S+) (\S+)/",$attribute1,$attribute2);     //function to parse useragent
+	
+	 return $attribute2[1];
+	}
+
+function parserefer($attribute2)		//function to parse referer
+	{
+         preg_match("/^\"(http\:\/\/)?([a-zA-Z]+(\.[a-zA-Z]+)*)\/\S+/",$attribute2,$refer);
+         return($refer[2]);
+        }
+
+
+include 'd_connect.php';						//establish connection
+
+
+$stdin = fopen ('php://stdin', 'r');					//accept data frm stdin
+
+
+$i=0;
+ob_implicit_flush (true);
+
+
+while(($line = fgets ($stdin)))
+ 	{
+	 preg_match("/^(\S+) (\S+) (\S+) \[([^:]+):(\d+:\d+:\d+) ([^\]]+)\] (\".*?\") (\S+) (\S+) (\d+) (\d+) (\d+) (\d+) (\".*?\") (\".*?\") (\S+) (\S+) (\S+)$/", $line, $attribute);					//regix for input string
+
+	 $remoteip		= mysql_real_escape_string($attribute[1]); 
+	 $date    		= mysql_real_escape_string($attribute[4]);
+	 $time     		= mysql_real_escape_string($attribute[5]);	
+	 $request     		= mysql_real_escape_string($attribute[7]);
+	 $req_protocol  	= mysql_real_escape_string($attribute[8]);
+	 $req_method    	= mysql_real_escape_string($attribute[9]);
+	 $status     		= mysql_real_escape_string($attribute[10]);
+	 $req_time_milsec    	= mysql_real_escape_string($attribute[12]);
+	 $bytes_sent     	= mysql_real_escape_string($attribute[13]);
+	 $virtual_host    	= mysql_real_escape_string($attribute[16]);
+	 $serverid    		= mysql_real_escape_string($attribute[17]);
+
+
+         include 'dateconversion.php';						//convert to sqlformat
+ 	 $useragent   = mysql_real_escape_string(parseUI($attribute[15]));	//function call
+         $referer     = mysql_real_escape_string(parserefer($attribute[14]));	 
+   
+	 	 
+
+
+	 mysql_query("INSERT INTO `WSM`.`accessnew` (`remoteip`, `date`, `time`, `time_stamp`, `request`, `req_protocol`, `req_method`, `status`, `req_time_milsec`, `bytes_sent`, `referer`, `user_agent`, `virtual_host`,`serveid`) VALUES ('$remoteip', '$date', '$time', '$time_stamp', '$request', '$req_protocol', '$req_method', '$status', '$req_time_milsec', '$bytes_sent', '$referer', '$useragent', '$virtual_host', '$serverid');");
+
+	}								//while close
+
+ mysql_close($dbhandle);						//close the connection
+ fclose($stdin);
+ 
+?>
